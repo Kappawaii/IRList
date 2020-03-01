@@ -1,0 +1,146 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ToggleSwitch="clr-namespace:ToggleSwitch;assembly=ToggleSwitch"
+        x:Class="IRStat.MainWindow" mc:Ignorable="d" Title="visIR"
+        MinHeight="768" MinWidth="1366" Height="768" Width="1366">
+
+    <Grid HorizontalAlignment="Left" Width="1358">
+        <Button x:Name="pathButton" Content="Charger des IRs" HorizontalAlignment="Left" Margin="20,15,0,0" VerticalAlignment="Top" Width="148" Click="SearchXmlButton_Click" Height="30"/>
+
+        <CheckBox x:Name="pathRecursiveCheckBox" Content="Inclure les sous-dossiers dans les résultats" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top" Height="16" Width="239"/>
+
+        <TextBlock x:Name="nombreIRTextBlock" HorizontalAlignment="Right" Margin="0,5,563,0" VerticalAlignment="Top" FontSize="13" Width="121" TextAlignment="Right" TextTrimming="CharacterEllipsis" Height="17" Text="(0 chargés)" />
+
+        <TextBlock x:Name="ConsoleTitleTextBlock" HorizontalAlignment="Left" Margin="12,488,0,0" TextWrapping="Wrap" Text="Console" VerticalAlignment="Top" FontSize="14" Height="19" Width="53" />
+
+        <ScrollViewer x:Name="ConsoleScrollViewer" HorizontalAlignment="Left" Margin="10,510,0,5" Width="490" >
+            <TextBlock x:Name="ConsoleOutputTextBlock" TextWrapping="Wrap" Background="#FFDEDEDE" Width="493" SizeChanged="ConsoleOutputTextBlock_AutoScroll" Height="213"/>
+        </ScrollViewer>
+
+
+        <TextBlock HorizontalAlignment="Left" Margin="525,5,0,0" TextWrapping="Wrap" Text="Instruments de Recherche" VerticalAlignment="Top" Height="17" Width="150" FontSize="13"/>
+        <Button x:Name="ExportDataButton" Content="Exporter les données" HorizontalAlignment="Left" Margin="332,15,0,0" VerticalAlignment="Top" Width="136" Height="30" Click="ExportDataButton_Click"/>
+
+        <Separator HorizontalAlignment="Left" Height="35" Margin="0,115,0,0" VerticalAlignment="Top" Width="520"/>
+        <Separator HorizontalAlignment="Left" Height="35" Margin="0,463,0,0" VerticalAlignment="Top" Width="520"/>
+        <Separator x:Name="mainSeparator" HorizontalAlignment="Left" Margin="496,2002,-1140,-1314" VerticalAlignment="Top" Width="2002" Height="50">
+            <Separator.RenderTransform>
+                <TransformGroup>
+                    <RotateTransform Angle="-90"/>
+                </TransformGroup>
+            </Separator.RenderTransform>
+        </Separator>
+
+        <ListView x:Name="IrListView" BorderThickness="0" UseLayoutRounding="True" d:DesignUseLayoutRounding="True" Style="{DynamicResource lvStyle2}" Margin="521,27,11,10" GridViewColumnHeader.Click="LvColumnHeader_Click" Width="Auto" Height="Auto">
+            <ListView.Resources>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <EventSetter Event="PreviewMouseRightButtonDown"
+                         Handler="OnListViewItemPreviewMouseRightButtonDown" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsValid}" Value="1">
+                            <Setter Property="Foreground" Value="Red" />
+                        </DataTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=DataContext.Tooltip}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView x:Name="lvGridView">
+                    <GridViewColumn Header="Id" Width="101">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Id}" Foreground="{Binding MessageColor}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Titre" Width="400">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Titre}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Button x:Name="ExportDataButton_Copy" Content="Exporter l'affichage console" HorizontalAlignment="Left" Margin="323,65,0,0" VerticalAlignment="Top" Width="155" Height="30" Click="ExportConsoleButton_Click"/>
+
+        <Button x:Name="XPathQueryButton_Copy" Content="Exec All" HorizontalAlignment="Left" Margin="449,145,0,0" VerticalAlignment="Top" Width="51" Height="30" Click="XPathAllQueriesButton_Click"/>
+
+        <ListBox ItemsSource="{Binding}" Margin="10,180,0,0" x:Name="ListBox" HorizontalAlignment="Left" Height="285" VerticalAlignment="Top" Width="505" >
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid x:Name="ListBoxGrid" Margin="0,2">
+                        <Grid.ColumnDefinitions >
+                            <ColumnDefinition x:Name="Nom" Width="120" />
+                            <!-- Separator -->
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition x:Name="Expression_XPath" Width="216"/>
+                            <!-- Separator -->
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition x:Name="Selecteur_QueryParam" Width="88.25"/>
+                            <!-- Separator -->
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition x:Name="Exec_Button" Width="35"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0" Text="{Binding Nom, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Stretch" PreviewMouseDown="GestionColonnes_Click_Highlight" />
+                        <TextBox Grid.Column="2" Text="{Binding XPathExpr, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Stretch" PreviewMouseDown="GestionColonnes_Click_Highlight" />
+
+                        <ToggleSwitch:HorizontalToggleSwitch Grid.Column="4" x:Name="onMetaToggleSwitch" HorizontalAlignment="Left" CheckedContent="META" UncheckedContent="IR" Checked="OnMetaToggleSwitch_Checked" Unchecked="OnMetaToggleSwitch_Unchecked" PreviewMouseDown="GestionColonnes_Click_Highlight" IsChecked="{Binding IsMeta}" >
+                            <ToggleSwitch:HorizontalToggleSwitch.CheckedBackground>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF727272" Offset="1"/>
+                                    <GradientStop Color="#FF818181"/>
+                                </LinearGradientBrush>
+                            </ToggleSwitch:HorizontalToggleSwitch.CheckedBackground>
+                            <ToggleSwitch:HorizontalToggleSwitch.UncheckedBackground>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF3A3A3A" Offset="1"/>
+                                    <GradientStop Color="Gray"/>
+                                </LinearGradientBrush>
+                            </ToggleSwitch:HorizontalToggleSwitch.UncheckedBackground>
+                        </ToggleSwitch:HorizontalToggleSwitch>
+                        <Button Grid.Column="6" x:Name="XPathQueryButton" Content="Exec" HorizontalAlignment="Left" Width="35" Height="30" Click="GestionColonnesXPathQueryButton_Click" PreviewMouseDown="GestionColonnes_Click_Highlight"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button Content="Nouvelle Colonne" HorizontalAlignment="Right" VerticalAlignment="Top" Width="115" Margin="0,149,1087,0" Click="NouvelleColonne_Click"/>
+
+        <Button Content="Supprimer colonne" HorizontalAlignment="Right" VerticalAlignment="Top" Width="115" Margin="0,149,954,0" Click="SupprimerColonne_Click" />
+        <Separator x:Name="mainSeparator_Copy" HorizontalAlignment="Left" Margin="248,131,0,0" VerticalAlignment="Top" Width="132" Height="50">
+            <Separator.RenderTransform>
+                <TransformGroup>
+                    <RotateTransform Angle="-90"/>
+                </TransformGroup>
+            </Separator.RenderTransform>
+        </Separator>
+        <TextBlock x:Name="GestionColonnesTitleTextBlock" HorizontalAlignment="Left" Margin="11,151,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="14" Height="19" Width="139" ><Run Text="Gestion "/><Run Text="d"/><Run Text="es "/><Run Text="c"/><Run Text="olonnes"/></TextBlock>
+    </Grid>
+
+
+
+    <Window.Resources>
+        <Style x:Key="lvStyle2" TargetType="{x:Type ListView}">
+            <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+            <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
+            <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False"/>
+            <Setter Property="ListView.ItemsSource" Value="{Binding}"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                    <Setter Property="ListView.Cursor" Value="Wait"/>
+                    <Setter Property="ListView.Background" Value="White"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+</Window>

@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # User-specific files
+*.exe
 *.suo
 *.user
 *.userosscache
@@ -328,3 +329,5 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+*.exe
+IRstat/SetupCreator/setups/0.3.1/IRStat0.3.1_Updater.exe
